@@ -1,0 +1,1 @@
+{"appName":"test-application","userGivenName":"test-application","destNamespace":"default","destServer":"https://kubernetes.default.svc","srcPath":".","srcRepoURL":"https://github.com/savindya-loit/devops-assignment-lolc.git","srcTargetRevision":"","labels":null,"exclude":"","include":""}
