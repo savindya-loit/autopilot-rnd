@@ -14,5 +14,4 @@ configMapGenerator:
 kind: Kustomization
 namespace: argocd
 resources:
-- ./v2.1.6
 - github.com/argoproj-labs/argocd-autopilot/manifests/base?ref=v0.2.28
