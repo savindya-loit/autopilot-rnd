@@ -1,0 +1,104 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  annotations:
+    argocd-autopilot.argoproj-labs.io/default-dest-server: https://141.147.51.215:6443
+    argocd.argoproj.io/sync-options: PruneLast=true
+    argocd.argoproj.io/sync-wave: "-2"
+  creationTimestamp: null
+  name: fusionx-rnd-qa
+  namespace: argocd
+spec:
+  clusterResourceWhitelist:
+  - group: '*'
+    kind: '*'
+  description: fusionx-rnd-qa project
+  destinations:
+  - namespace: '*'
+    server: '*'
+  namespaceResourceWhitelist:
+  - group: '*'
+    kind: '*'
+  sourceRepos:
+  - '*'
+status: {}
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+  creationTimestamp: null
+  name: fusionx-rnd-qa
+  namespace: argocd
+spec:
+  generators:
+  - git:
+      files:
+      - path: apps/**/fusionx-rnd-qa/config.json
+      repoURL: https://github.com/savindya-loit/autopilot-rnd.git
+      requeueAfterSeconds: 20
+      revision: ""
+      template:
+        metadata: {}
+        spec:
+          destination: {}
+          project: ""
+          source:
+            repoURL: ""
+  - git:
+      files:
+      - path: apps/**/fusionx-rnd-qa/config_dir.json
+      repoURL: https://github.com/savindya-loit/autopilot-rnd.git
+      requeueAfterSeconds: 20
+      revision: ""
+      template:
+        metadata: {}
+        spec:
+          destination: {}
+          project: ""
+          source:
+            directory:
+              exclude: '{{ exclude }}'
+              include: '{{ include }}'
+              jsonnet: {}
+              recurse: true
+            repoURL: ""
+  syncPolicy: {}
+  template:
+    metadata:
+      annotations:
+        argocd-image-updater.argoproj.io/image-list: my-image=fra.ocir.io/lolctech/fxapiuser/{{ userGivenName }}:rnd
+        argocd-image-updater.argoproj.io/my-image.update-strategy: digest
+        argocd-image-updater.argoproj.io/write-back-method: git 
+        argocd-image-updater.argoproj.io/git-branch: main
+        argocd-image-updater.argoproj.io/write-back-target: kustomization
+        argocd-image-updater.argoproj.io/my-image.ignore-tags: latest  
+        notifications.argoproj.io/subscribe.gmail: loitscloudteam@lolc.com
+        notifications.argoproj.io/subscribe.teams: channelName        
+      labels:
+        app.kubernetes.io/managed-by: argocd-autopilot
+        app.kubernetes.io/name: '{{ appName }}'
+      name: fusionx-sl-qa-new-{{ userGivenName }}
+      namespace: argocd
+    spec:
+      destination:
+        namespace: '{{ destNamespace }}'
+        server: '{{ destServer }}'
+      ignoreDifferences:
+      - group: argoproj.io
+        jsonPointers:
+        - /status
+        kind: Application
+      project: fusionx-sl-qa-new
+      source:
+        path: '{{ srcPath }}'
+        repoURL: '{{ srcRepoURL }}'
+        targetRevision: '{{ srcTargetRevision }}'  
+      syncPolicy:
+        automated:
+          allowEmpty: true
+          prune: false
+          selfHeal: true      
+status: {}
