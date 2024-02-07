@@ -80,7 +80,7 @@ spec:
       labels:
         app.kubernetes.io/managed-by: argocd-autopilot
         app.kubernetes.io/name: '{{ appName }}'
-      name: fusionx-sl-qa-new-{{ userGivenName }}
+      name: fusionx-rnd-qa-{{ userGivenName }}
       namespace: argocd
     spec:
       destination:
