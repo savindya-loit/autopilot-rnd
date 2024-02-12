@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fusionx
+  labels:
+    app: app
+spec:
+  replicas: 2
+  revisionHistoryLimit: 5 #previous deployment will be kept for rollback purpose
+  selector:
+    matchLabels:
+      app: app #selects pods with app to manage deployment
+  strategy:
+    type: RollingUpdate #pods updated one by one to minimise downtime
+    rollingUpdate:
+      maxUnavailable: 0  #no pods are unavailable during update process
+  template:
+    metadata:
+      labels:
+        app: app
+    spec:
+      # imagePullSecrets:
+      # - name: registry-secret    #uses registry-secret to pull images
+      affinity:  #Ensures pods are spread across different failure zones for redundancy
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - app
+              topologyKey: failure-domain.beta.kubernetes.io/zone
+            weight: 100      
+      containers:
+      - name: app
+        image: app
+        imagePullPolicy: Always  #pull image everytime pods restarts 
+        # envFrom: #reads env variables from config,secret
+        # - configMapRef:
+        #     name: fusionx-config
+        # - secretRef:
+        #     name: fusionx-secret          
+        ports:
+          - name: http-port
+            protocol: TCP
+            containerPort: 8080
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "3Gi"
+            cpu: "1"   
+        startupProbe:
+          httpGet:
+            path: /app/actuator/health
+            port: http-port
+          failureThreshold: 30
+          periodSeconds: 10                  
+        readinessProbe:
+          httpGet:
+            path: /app/actuator/health
+            port: http-port
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 10
+        livenessProbe:
+          httpGet:
+            path: /app/actuator/health
+            port: http-port
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 5    
+          failureThreshold: 10
+        # volumeMounts:
+        # - mountPath:  /opt/wallet/
+        #   name: atp-secret            
+      terminationGracePeriodSeconds: 60    #pod has 60secs to shutdown gracefully          
+      # volumes:
+      #   - name: atp-secret
+      #     secret:
+      #       secretName: atp-secret   

@@ -1,0 +1,14 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: fusionx
+spec:
+  http:
+  - match:
+    - uri:
+        prefix: /td-transfer-out
+    route:
+    - destination:
+        host: td-transfer-out.fusionx-td.svc.cluster.local
+        port:
+          number: 8080

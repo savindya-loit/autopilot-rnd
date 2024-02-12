@@ -1,0 +1,21 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: fusionx
+spec:
+  destination: 
+    server: https://141.147.51.215:6443
+  template:
+    spec:
+      containers:
+      - name: app
+        image: fra.ocir.io/lolctech/fxapiuser/td-transfer-out:dev
+        startupProbe:
+          httpGet:
+            path: /td-transfer-out/actuator/health        
+        readinessProbe:
+          httpGet:
+            path: /td-transfer-out/actuator/health
+        livenessProbe:
+          httpGet:
+            path: /td-transfer-out/actuator/health 

@@ -1,0 +1,3 @@
+bases:
+- ../../base/java
+namespace: fusionx-td

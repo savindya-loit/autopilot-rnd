@@ -1,0 +1,11 @@
+bases:
+- ../base
+patches:
+  - deployment.yaml
+  - virtualService.yaml
+patchesJson6902:
+  - target:
+      name: fusionx
+    path: patch.yaml
+commonLabels:
+  app: td-transfer-out
